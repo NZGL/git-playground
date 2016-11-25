@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# newrm--A replacement for rm command that saves deleted files
+# in a hiddent directory in the users home folder. if the user
+# adds the -f flag files are removed and not archived.
+# From the booked 'wiked cool shell scripts'
+
+# Corresponding cron job kills all files older than 7 days!
+: '
+# first setup a cron job by adding the below script to
+/etc/cron.daily
+# the cron job will run the following command
+# I call /bin/rm explicilty to avoid a potential file forever loop
+there is a cron job that goes with this that looks like this:
+find /home/dwheeler/.deleted-files/* -mtime +7 -exec /bin/rm {} \;
+# save this file so that it has NO FILE EXTENSION!! and place in
+/etc/cron.daily (it only kills files that are 7 days old)
+with permission as sudo chmod 755
+'
+
+archivedir="$HOME/.deleted-files"
+realrm="$(which rm)"
+copy="$(which cp) -R"
+
+if [ $# -eq 0 ]; then  # let rm output the usage error
+    exec $realrm  # our shell is replaced by /bin/rm
+fi
+
+# parse all options looking for -f
+
+flags=""
+
+while getopts "dfiPRrvW" opt
+do
+    case $opt in
+        f ) exec $realrm "$@" ;; #exec lets us exit this directly
+        * ) flags="$flags -$opt" ;; # Other flags are for mr, not us
+    esac
+done
+shift $(( $OPTIND - 1 ))
+
+# BEGIN MAIN SCRIPT
+# =============
+
+# Make sure that the #archiedir exists.
+
+if [ ! -d $archivedir ] ; then
+    if [ ! -w $HOME ]; then
+        echo "$0 failed: can't create $archivedir in $HOME" >&2
+        exit 1
+    fi
+    mkdir $archivedir
+    chmod 700 $archivedir  # Privacy!
+fi
+
+for arg
+do
+    newname="$archivedir/$(date "+%S.%M.%H.%d.%m").$(basename "$arg")"
+    if [ -f "$arg" -o -d "$arg" ] ; then
+        $copy "$arg" "$newname"
+    fi
+done
+
+exec $realrm $flags "$@"
