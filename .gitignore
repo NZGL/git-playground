@@ -1,0 +1,4 @@
+# put files in here that you don't want to track
+
+# python compile files
+*.pyc
