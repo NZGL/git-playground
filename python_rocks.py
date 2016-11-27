@@ -2,9 +2,10 @@
 
 import this
 
+
 def byitself(number):
     """ A simple function that does very little"""
-    return number * number
+    return number * number * number
 
 
 myvar = 10
