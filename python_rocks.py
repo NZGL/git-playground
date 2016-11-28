@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import this
+import random
 
 # a function
 def byitself(number):
