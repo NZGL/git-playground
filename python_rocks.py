@@ -2,12 +2,13 @@
 
 import this
 
+# a function
 def byitself(number):
     """ A simple function that does very little"""
     return number * number
 
 
-myvar = 10
+myvar = 15
 
 for num in range(myvar):
     print "The current number is %s" % num
